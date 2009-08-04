@@ -1,0 +1,1 @@
+{'*', [{outdir, "../ebin_tests"}, debug_info]}.

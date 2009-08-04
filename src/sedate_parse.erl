@@ -101,4 +101,4 @@ rule(examples_keyword) ->
 rule(keyword_space) ->
   peg:zero_or_more(fun space/2).
 
-transform(Symbol,Node) -> sedate_ast:transform(Symbol, Node).
+transform(Symbol,Node,Index) -> sedate_ast:transform(Symbol, Node, Index).

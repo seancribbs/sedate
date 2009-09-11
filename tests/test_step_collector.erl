@@ -5,7 +5,8 @@ directory_test_()->
   [
    fun single_file/0,
    fun multiple_files/0,
-   fun deep_structure/0
+   fun deep_structure/0,
+   fun callbacks/0
   ].
 
 single_file() ->
@@ -29,7 +30,20 @@ deep_structure() ->
 cleanup_table() ->
   case ets:info(sedate_steps) of
     undefined ->
-       ok;
+      ok;
     _ ->
       ets:delete(sedate_steps)
+  end,
+  case ets:info(sedate_callbacks) of
+    undefined ->
+      ok;
+    _ ->
+      ets:delete(sedate_callbacks)
   end.
+
+callbacks() ->
+  cleanup_table(),
+  sedate_step_collector:directory("tests/fixtures/collector/callbacks"),
+  ?assertMatch([{'Before', X}] when is_function(X), ets:lookup(sedate_callbacks, 'Before')),
+  ?assertMatch([{'After', Y}] when is_function(Y), ets:lookup(sedate_callbacks, 'After')),
+  ?assertMatch([{'AfterStep', Z}] when is_function(Z), ets:lookup(sedate_callbacks, 'AfterStep')).

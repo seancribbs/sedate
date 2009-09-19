@@ -1,6 +1,10 @@
-Before(fun() ->
+Before([], fun() ->
            ok end).
-After(fun() ->
+After([], fun() ->
           ok end).
-AfterStep(fun() ->
+AfterStep([], fun() ->
               ok end).
+Before(["@wip"], fun() ->
+                     ok end).
+AfterConfiguration(fun() ->
+                       ok end).

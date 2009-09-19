@@ -44,6 +44,8 @@ cleanup_table() ->
 callbacks() ->
   cleanup_table(),
   sedate_step_collector:directory("tests/fixtures/collector/callbacks"),
-  ?assertMatch([{'Before', X}] when is_function(X), ets:lookup(sedate_callbacks, 'Before')),
-  ?assertMatch([{'After', Y}] when is_function(Y), ets:lookup(sedate_callbacks, 'After')),
-  ?assertMatch([{'AfterStep', Z}] when is_function(Z), ets:lookup(sedate_callbacks, 'AfterStep')).
+  ?assertMatch([{{'Before', []}, X}] when is_function(X), ets:lookup(sedate_callbacks, {'Before',[]})),
+  ?assertMatch([{{'After',[]}, Y}] when is_function(Y), ets:lookup(sedate_callbacks, {'After',[]})),
+  ?assertMatch([{{'AfterStep',[]}, Z}] when is_function(Z), ets:lookup(sedate_callbacks, {'AfterStep',[]})),
+  ?assertMatch([{{'Before', ["@wip"]}, Q}] when is_function(Q), ets:lookup(sedate_callbacks, {'Before', ["@wip"]})),
+    ?assertMatch([{{'AfterConfiguration',[]}, R}] when is_function(R), ets:lookup(sedate_callbacks, {'AfterConfiguration',[]})).

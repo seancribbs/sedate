@@ -1,0 +1,146 @@
+feature <- white
+           comment
+           white
+           tags
+           white
+           header:(!(scenario_outline / scenario / background) .)*
+           bg:background?
+           feature_elements
+           comment?
+`
+{feature, ?item(4), lists:flatten(?label(header)), ?label(bg), ?item(8)}
+`;
+
+tags <- white ts:(tag (space / eol)+)*
+`
+{tags, ?line, [Tag || [Tag, _] <- ?label(ts)]}
+`;
+
+tag <- '@' tag_name:([^@\r\n\t\s])+
+`
+list_to_atom(lists:flatten(?label(tag_name)))
+`;
+
+comment <- (comment_line white)* ~;
+
+comment_line <- '#' line_to_eol ~;
+
+background <- comment white
+              background_keyword space*
+              name:lines_to_keyword?
+              (eol+ / eof)
+              steps
+`
+{background, ?line, lists:flatten(?label(name)), ?item(7)}
+`;
+
+feature_elements <- (scenario / scenario_outline)* ~;
+
+scenario <- comment
+            tags white
+            scenario_keyword space*
+            name:lines_to_keyword white
+            steps white
+`
+{scenario, ?line, ?label(name), ?item(2), ?item(8)}
+`;
+
+scenario_outline <- comment
+                    tags white
+                    scenario_outline_keyword space*
+                    name:lines_to_keyword white
+                    steps
+                    examples_sections white
+`
+{scenario_outline, ?line, ?label(name), ?item(2), ?item(8), ?item(9)}
+`;
+
+steps <- step* ~;
+
+step <- comment space*
+        step_keyword
+        keyword_space
+        name:line_to_eol
+        (eol+ / eof)
+        multi:multiline_arg?
+        white
+`
+case ?label(multi) of
+  [] -> {step, ?line, ?item(3), string:strip(?label(name))};
+  _  -> {step_multi, ?line, ?item(3), string:strip(?label(name)), ?label(multi)}
+end
+`;
+
+examples_sections <- examples* ~;
+
+examples <- space*
+            examples_keyword space*
+            name:lines_to_keyword?
+            eol
+            table
+            white
+`
+{examples, ?line, ?label(name), ?item(6)}
+`;
+
+multiline_arg <- table / py_string ~;
+
+line_to_eol <- (!eol .)* `lists:flatten(Node)`;
+
+line_to_keyword <- white
+                   text:(!step_keyword !scenario_keyword !scenario_outline_keyword !table !tag !comment_line !eol .)+ ~;
+
+lines_to_keyword <- (line_to_keyword)*
+`
+Lines = [lists:flatten(proplists:get_value(text, L)) || L <- Node],
+string:join(Lines, "\n")
+`;
+
+py_string <- open_py_string s:(!close_py_string .)* close_py_string
+`
+Indentation = lists:flatten(proplists:get_value(indent, ?item(1))),
+Unindented = re:replace(?label(s), [$\n|Indentation], "\n", [global, {return, list}]),
+{py_string, ?line, Unindented}
+`;
+
+open_py_string <- indent:space* '"""' space* eol ~;
+
+close_py_string <- eol space* quotes:'"""' white ~;
+
+white <- (space / eol)* ~;
+
+table <- table_row+
+`
+{table, ?line, Node}
+`;
+
+table_row <- space* '|' cells:(cell '|')+ space* (eol+ / eof)
+`
+{row, ?line, [string:strip(lists:flatten(Cell)) || [Cell, _] <- ?label(cells)]}
+`;
+
+cell <- (!('|' / eol) .)* ~;
+
+space <- [ \t] ~;
+
+eol <- '\n' / ('\r' '\n'?) ~;
+
+eof <- !. ~;
+
+background_keyword <- 'Background:' ~;
+
+scenario_keyword <- 'Scenario:' ~;
+
+scenario_outline_keyword <- 'Scenario Outline:' ~;
+
+step_keyword <- 'Given' / 'When' / 'Then' / 'And' / 'But' `list_to_atom(Node)`;
+
+examples_keyword <- 'Examples' ':'? ~;
+
+keyword_space <- space* ~;
+
+`
+-define(line, line(Idx)).
+-define(item(I), lists:nth(I, Node)).
+-define(label(L), proplists:get_value(L,Node,[])).
+`

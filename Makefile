@@ -16,8 +16,8 @@ src_src: src/sedate_parse.erl ebin
 src_tests: ebin_tests src_src
 	cd tests;erl -pz ../ebin -pz -make
 
-src/sedate_parse.erl: priv/gherkin.peg
-	${ERL} -noshell -s init stop -eval 'peg_gen:file("priv/gherkin.peg", [{output, "src"},{module, sedate_parse},{transform_module, sedate_ast}]).'
+src/sedate_parse.erl: src/sedate_parse.peg
+	${ERL} -noshell -s init stop -eval 'neotoma:file("src/sedate_parse.peg")'
 
 clean:
 	rm -rf ebin/ ebin_tests/

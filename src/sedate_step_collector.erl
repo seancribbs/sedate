@@ -1,6 +1,8 @@
 -module(sedate_step_collector).
 -export([directory/1]).
 
+%% TODO - capture the line of each step definition
+
 directory(Dir) ->
   Bindings = create_bindings(),
   create_ets(),

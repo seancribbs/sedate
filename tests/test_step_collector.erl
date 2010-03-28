@@ -1,5 +1,6 @@
 -module(test_step_collector).
 -include_lib("eunit/include/eunit.hrl").
+-export([cleanup_table/0]).
 
 directory_test_()->
   [

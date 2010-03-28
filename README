@@ -1,0 +1,14 @@
+"sedate" is an attempt to clone Cucumber, the awesome Ruby library for acceptance testing, using Erlang-specific idioms.
+
+DONE:
+* Parse gherkin (with neotoma).
+* Collect step definitions from files.
+
+IN PROGRESS:
+* Use smerl to dynamically add stepdefs to a "world" module.
+
+TODO:
+* Sensible expectation/assertion library.
+* Execute collected steps against the story AST.
+* Command-line helpers, perhaps via rebar.
+* Project templates/generators.
